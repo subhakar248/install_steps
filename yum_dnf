@@ -1,0 +1,60 @@
+1. Mount RHEL 8 DVD or ISO file
+# mount /dev/cdrom /mnt  
+
+2. Create a folder and Copy all DVD content into that folder   
+# mkdir /Package
+# cp –rv /mnt/* /Package
+
+3. Copy media.repo file from mounted directory to /etc/yum.repos.d/
+# cp -v /opt/media.repo /etc/yum.repos.d/rhel8.repo
+Set “644” permission on “/etc/yum.repos.d/rhel8.repo”
+
+4. Add repository entries in “/etc/yum.repos.d/rhel8.repo” file
+Edit rhel8.repo file.
+vi /etc/yum.repos.d/rhel8.repo
+[InstallMedia-BaseOS]
+name=Red Hat Enterprise Linux 8 – BaseOS
+metadata_expire=-1
+gpgcheck=1
+enabled=1
+baseurl=file:///Package/BaseOS/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+
+[InstallMedia-AppStream]
+name=Red Hat Enterprise Linux 8 – AppStream
+metadata_expire=-1
+gpgcheck=1
+enabled=1
+baseurl=file:///Package/AppStream/
+gpgkey=file:///etc/pki/rpm-gpg/RPM-GPG-KEY-redhat-release
+
+5. Clean Yum / DNF and Subscription Manager Cache 
+#dnf clean all
+#subscription-manager clean
+
+6. Check whether Yum / DNF is getting packages from Local Repo
+Use dnf or yum repolist command to verify whether these commands are getting packages from Local repolist
+
+dnf repolist
+
+Updating Subscription Management repositories.
+Unable to read consumer identity
+This system is not registered to Red Hat Subscription Management. You can use subscription-manager to register.
+Last metadata expiration check: 1:32:44 ago on Sat 11 May 2019 08:48:24 AM BST.
+repo id repo name status
+InstallMedia-AppStream Red Hat Enterprise Linux 8 – AppStream 4,672
+InstallMedia-BaseOS Red Hat Enterprise Linux 8 – BaseOS 1,658
+
+To prevent message “This system is not registered with Red Hat Subscription Management. You can use the subscription-manager to register.” Go to /etc/yum/pluginconf.d/subscription-manager.conf”, changed the parameter “enabled=1” to “enabled=0”
+
+[root@ssdntech~]# vi /etc/yum/pluginconf.d/subscription-manager.conf
+vi /etc/yum/pluginconf.d/subscription-manager.conf
+[main]
+enabled=0
+
+6. Installing packages using DNF / Yum
+# dnf install package
+
+It will show you Packages and its dependencies and ask you for confirmation about installing packages. Press “Y” if you want to install any package.
+
